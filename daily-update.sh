@@ -1,30 +1,18 @@
 #!/bin/bash
 
-logfile=/var/log/daily-update.log
+DATE=$(date +"%d-%b-%Y_%H-%M-%S")
+LOG="/var/log/daily-update.log"
 
-log() {
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" | tee -a $logfile
-}
-
-log "Start Update & Cleanup..."
-
-if sudo apt update && sudo apt upgrade -y; then
-    log "Update and Upgrade Berhasil."
+if apt update && apt upgrade -y; then
+  echo "[$DATE] Update completed successfully." >> $LOG
 else
-    log "ERROR: Update and Upgrade Gagal."
-    exit 1
+  echo "[$DATE] Update failed." >> $LOG
+  exit 1
 fi
 
-if sudo apt autoremove -y; then
-    log "Autoremove Berhasil."
+if apt autoremove && apt autoclean; then
+  echo "[$DATE] Cleanup completed successfully." >> $LOG
 else
-    log "WARNING: Autoremove Gagal."
+  echo "[$DATE] Cleanup failed." >> $LOG
+  exit 1
 fi
-
-if sudo apt autoclean; then
-    log "Autoclean Berhasil."
-else
-    log "WARNING: Autoclean Gagal."
-fi
-
-log "Update & Cleanup Berhasil."
